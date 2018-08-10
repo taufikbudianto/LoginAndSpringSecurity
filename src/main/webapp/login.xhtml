@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+<!--        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>-->
+        <title>My-Project</title>
+        <h:outputScript name="js/ripple.js" library="barcelona-layout" />
+        <h:outputScript name="js/layout.js" library="barcelona-layout" />
+    </h:head>
+
+    <h:body styleClass="login-body">
+
+        <h:form prependId="false">
+            <div class="login-panel ui-fluid" style="margin-top: -70px;border-radius: 10px;">
+                <div class="ui-g">
+                    <div class="ui-g-12 login-header" style="border-top-left-radius: 10px;border-top-right-radius: 10px;background-color:#3A4246;">
+                        <h1>My-Project</h1>
+                        <h2></h2>
+                        <p:graphicImage name="images/logo.png" library="barcelona-layout" />
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-11">
+                            <i class="fa fa-user" style="color:rgb(0, 151, 165);"></i>
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:inputText id="j_username" value="#{loginMBean.userLogin}" required="true" style="border-radius: 10px;">
+                                    <p:ajax event="blur" update="msgUser"/>
+                                </p:inputText>
+                                <!--<label style="padding-left:10px;padding-top:3px;">#{msg.login_username}</label>-->
+                            </h:panelGroup>
+                        </div>
+                        <div class="ui-g-1">
+                            <p:message id="msgUser" for="j_username" display="icon"/>
+                        </div>
+                    </div>
+                    <div class="ui-g-12">
+                        <div class="ui-g-11">
+                            <i class="fa fa-lock" style="color:rgb(0, 151, 165);"></i>
+                            <h:panelGroup styleClass="md-inputfield">
+                                <p:password id="j_password" value="#{loginMBean.password}" required="true" style="border-radius: 10px;">
+                                    <p:ajax event="blur" update="msgPassword"/>
+                                </p:password>
+                                <!--<label style="padding-left:10px;padding-top:3px;">#{msg.login_password}</label>-->
+                            </h:panelGroup>
+                        </div>
+                        <div class="ui-g-1">
+                            <p:message id="msgPassword" for="j_password" display="icon"/>
+                        </div>
+                    </div>
+                    <!--                    <div class="ui-g-12 chkbox-container">
+                                            <p:selectBooleanCheckbox id="j_remember_me" value="{loginMBean.rememberMe}" />
+                                            <p:outputLabel for="j_remember_me" value="{msg.login_remember_me}"/>
+                                        </div>-->
+                    <div class="ui-g-12 button-container">
+                        <p:outputLabel value="#{loginMBean.errMessage}" style="color: red; font-weight: bold;"
+                                       rendered="#{loginMBean.errMessage != null}" />
+                        <p:commandButton icon="ui-icon-person" value="#{msg.login_log_in}" ajax="false" style="margin-top: 15px;border-radius: 15px;"
+                                         actionListener="#{loginMBean.login()}"/>
+                    </div>
+                </div>
+            </div>
+        </h:form>
+
+        <h:outputStylesheet name="css/layout-dark-blue.css" library="barcelona-layout" />
+        <h:outputStylesheet name="css/ripple.css" library="barcelona-layout" />
+    </h:body>
+
+</html>

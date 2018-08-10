@@ -1,0 +1,27 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+    
+    <ui:define name="head">
+        <meta http-equiv="refresh" content="3;url=login.xhtml" />
+    </ui:define>
+    
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="card card-w-title">
+                    <h1>#{msg.session_expired_title}</h1>
+                    <p>#{msg.session_expired_message}</p>
+                    <p>#{msg.session_expired_redirect}</p>
+
+                    <p:button outcome="/login" value="#{msg.login_log_in}" icon="ui-icon-person" 
+                              style="width: auto; margin-top: 15px;" />
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,120 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:form id="user-detail">
+        <p:panel class="ui-g-12 card-w-title no-padding no-border content-title">
+            <h1>#{msg.user_title} - #{userMBean.userDetail != null and userMBean.userDetail.userId != null ? msg.user_dtl_edit_user : msg.user_dtl_new_user}</h1>
+        </p:panel>
+
+        <p:panelGrid id="basic-data" class="ui-g-6 no-padding no-border" columns="2" layout="grid" styleClass="ui-panelgrid-blank form-group"
+                     columnClasses="ui-grid-col-3,ui-grid-col-9">
+            <p:outputLabel value="#{msg.user_dtl_username}" />
+            <h:panelGroup styleClass="md-inputfield">
+                <p:inputText id="username" value="#{userMBean.userDetail.login}" maxlength="100"
+                             disabled="#{!userMBean.isSecureItemEditable('UsernameInput')}" 
+                             required="true" requiredMessage="#{msg.error_user_empty_username}" />
+                <p:message for="username" />
+            </h:panelGroup>
+
+            <p:outputLabel value="#{msg.user_dtl_password}" rendered="#{userMBean.isSecureItemEditable('PasswordInput')}" />
+            <h:panelGroup styleClass="md-inputfield" rendered="#{userMBean.isSecureItemVisible('PasswordInput')}">
+                <p:password id="password" value="#{userMBean.passwordInput}" maxlength="60"
+                            match="confirm-password" validatorMessage="#{msg.error_user_not_match_confirm_password}" 
+                            required="#{!userMBean.generatedPassword}" requiredMessage="#{msg.error_user_empty_password}" 
+                            disabled="#{!userMBean.isSecureItemEditable('PasswordInput') or userMBean.generatedPassword}" />
+                <p:message for="password" />
+            </h:panelGroup>
+
+            <p:outputLabel value="#{msg.user_dtl_confirm_password}" rendered="#{userMBean.isSecureItemEditable('PasswordInput')}" />
+            <h:panelGroup styleClass="md-inputfield" rendered="#{userMBean.isSecureItemVisible('PasswordInput')}">
+                <p:password id="confirm-password" value="#{userMBean.passwordInput}" maxlength="60"
+                            required="#{!userMBean.generatedPassword}" requiredMessage="#{msg.error_user_empty_confirm_password}" 
+                            disabled="#{!userMBean.isSecureItemEditable('PasswordInput') or userMBean.generatedPassword}" />
+                <p:message for="confirm-password" />
+            </h:panelGroup>
+
+            <p:outputLabel value="#{msg.user_dtl_full_name}" rendered="#{userMBean.isSecureItemEditable('FullNameInput')}" />
+            <h:panelGroup styleClass="md-inputfield" rendered="#{userMBean.isSecureItemVisible('FullNameInput')}">
+                <p:inputText id="full-name" value="#{userMBean.fullNameInput}" maxlength="100"
+                             disabled="#{!userMBean.isSecureItemEditable('FullNameInput')}" 
+                             required="true" requiredMessage="#{msg.error_user_empty_full_name}" />
+                <p:message for="full-name" />
+            </h:panelGroup>
+            
+            <p:outputLabel value="#{msg.user_dtl_role}" rendered="#{userMBean.isSecureItemVisible('RoleInput') and !userMBean.multipleRoles}" />
+            <h:panelGroup rendered="#{userMBean.isSecureItemVisible('RoleInput') and !userMBean.multipleRoles}">
+                <p:selectOneMenu id="role" value="#{userMBean.selectedRole}" converter="listConverter"
+                                 disabled="#{!userMBean.isSecureItemEditable('RoleInput')}"
+                                 required="true" requiredMessage="#{msg.error_user_empty_role}">
+                    <f:selectItem itemLabel="#{msg.data_please_select}" itemValue="" />
+                    <f:selectItems value="#{userMBean.availableRoles}" var="role" 
+                                   itemLabel="#{role.roleName} #{role.tenant != null ? '- '.concat(role.tenant.tenantName) : ''}" itemValue="#{role}" />
+                </p:selectOneMenu>
+                <p:message for="role" />
+            </h:panelGroup>
+        </p:panelGrid>
+
+        <p:panelGrid class="ui-g-12 no-padding no-border" columns="1" layout="grid" style="margin-top: 20px;" 
+                     styleClass="ui-panelgrid-blank form-group" columnClasses="ui-grid-col-9"
+                     rendered="#{userMBean.isSecureItemVisible('RoleInput') and userMBean.multipleRoles}">
+
+            <h:panelGroup>
+                <p:pickList id="roles" value="#{userMBean.roles}" var="roles" itemLabel="#{roles}" itemValue="#{roles}"
+                            showTargetControls="true" showSourceFilter="true" showTargetFilter="true" filterMatchMode="contains"
+                            responsive="true" converter="listConverter" itemDisabled="#{!userMBean.isSecureItemEditable('RoleInput')}">
+                    
+                    <f:facet name="sourceCaption">#{msg.user_dtl_available_roles}</f:facet>
+                    <f:facet name="targetCaption">#{msg.user_dtl_assigned_roles}</f:facet>
+
+                    <p:column>
+                        <p:outputLabel value="#{roles.roleName} #{roles.tenant != null ? '- '.concat(roles.tenant.tenantName) : ''}" />
+                    </p:column>
+                </p:pickList>
+                    
+                <p class="field-note">#{msg.user_dtl_roles_note}</p>
+            </h:panelGroup>
+        </p:panelGrid>
+        
+        <p:panelGrid class="ui-g-12 no-padding no-border" columns="1" layout="grid" style="margin-top: 20px;" 
+                     styleClass="ui-panelgrid-blank form-group" columnClasses="ui-grid-col-6"
+                     rendered="#{userMBean.isSecureItemVisible('GeneratePasswordCheckBox') or userMBean.isSecureItemVisible('MustChangePasswordCheckBox')}">
+
+<!--            <p:fieldset id="authentication" legend="#{msg.user_dtl_authentication}">
+                <p:panelGrid columns="1" layout="grid" class="no-padding no-border" styleClass="ui-panelgrid-blank form-group">
+                    <h:panelGroup rendered="#{userMBean.isSecureItemVisible('GeneratePasswordCheckBox')}">
+                        <p:selectBooleanCheckbox id="generate-password" value="#{userMBean.generatedPassword}" 
+                                                 disabled="#{!userMBean.isSecureItemEditable('GeneratePasswordCheckBox')}">
+                            <p:ajax update="@form:password @form:confirm-password" process="@this" />
+                        </p:selectBooleanCheckbox>
+                        <p:spacer />
+                        <p:outputLabel value="#{msg.user_dtl_generate_password}" />
+                    </h:panelGroup>
+
+                    <h:panelGroup rendered="#{userMBean.isSecureItemVisible('MustChangePasswordCheckBox')}">
+                        <p:selectBooleanCheckbox id="change-password" value="#{userMBean.userDetail.changePassword}"
+                                                 disabled="#{!userMBean.isSecureItemEditable('MustChangePasswordCheckBox')}" />
+                        <p:spacer />
+                        <p:outputLabel value="#{msg.user_dtl_must_change_password}" />
+                    </h:panelGroup>
+                </p:panelGrid>
+            </p:fieldset>-->
+        </p:panelGrid>
+        
+        <p:panel class="ui-g-12 control-button no-border no-padding">
+            <p:commandButton type="button" value="#{msg.btn_cancel}" icon="fa fa-times" styleClass="secondary">
+                <p:ajax event="click" listener="#{userMBean.hideDetail()}" process="@this" update=":user-content" />
+            </p:commandButton>
+            <p:spacer width="10"/>
+
+            <p:commandButton value="#{msg.btn_save}" icon="fa fa-save" 
+                             rendered="#{userMBean.isSecureItemVisible('SaveButton')}">
+                <p:confirm message="#{msg.user_dtl_save_confirm_message}" />
+                <p:ajax event="click" listener="#{userMBean.saveDetail()}" process="@form" update="@form:basic-data" />
+            </p:commandButton>
+        </p:panel>
+    </h:form>
+
+</ui:composition>

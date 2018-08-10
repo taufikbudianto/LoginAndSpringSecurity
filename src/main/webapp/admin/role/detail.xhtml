@@ -1,0 +1,144 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:form id="role-detail">
+        <p:panel class="ui-g-12 card-w-title no-padding no-border content-title">
+            <h1>#{msg.role_title} - #{roleMBean.roleDetail != null and roleMBean.roleDetail.roleId != null ? msg.role_dtl_edit_role : msg.role_dtl_new_role}</h1>
+        </p:panel>
+
+        <p:panelGrid id="basic-data" class="ui-g-6 no-padding no-border" columns="2" layout="grid" styleClass="ui-panelgrid-blank form-group"
+                     columnClasses="ui-grid-col-3,ui-grid-col-9">
+            <p:outputLabel value="#{msg.role_dtl_role_identifier}" />
+            <h:panelGroup styleClass="md-inputfield">
+                <p:inputText id="role-identifier" value="#{roleMBean.roleDetail.roleIdentifier}" maxlength="30"
+                             converter="upperCaseConverter" styleClass="capitalized" onkeypress="if (event.which === 32) { return false; }"
+                             disabled="#{!roleMBean.newRole and roleMBean.roleDetail.roleId != null}" 
+                             required="true" requiredMessage="#{msg.error_role_empty_role_identifier}" />
+                <p:message for="role-identifier" />
+            </h:panelGroup>
+
+            <p:outputLabel value="#{msg.role_dtl_role_name}" />
+            <h:panelGroup styleClass="md-inputfield">
+                <p:inputText id="role-name" value="#{roleMBean.roleDetail.roleName}" maxlength="50"
+                             disabled="#{!roleMBean.isSecureItemEditable('RoleNameInput')}" 
+                             required="true" requiredMessage="#{msg.error_role_empty_role_name}" />
+                <p:message for="role-name" />
+            </h:panelGroup>
+
+            <p:outputLabel value="#{msg.role_dtl_initial_access}" />
+            <h:panelGroup>
+                <p:selectOneMenu id="role-initial-access" value="#{roleMBean.roleDetail.initialAccess}" converter="listConverter"
+                                 disabled="#{!roleMBean.isSecureItemEditable('InitialAccessInput')}"
+                                 required="true" requiredMessage="#{msg.error_role_empty_initial_access}">
+                    <f:selectItem itemLabel="#{msg.data_please_select}" itemValue="" />
+                    <f:selectItems value="#{roleMBean.accessRights}" />
+                </p:selectOneMenu>
+                <p:message for="role-initial-access" />
+            </h:panelGroup>
+
+            <p:outputLabel value="#{msg.role_dtl_tenant}" rendered="#{roleMBean.isSecureItemVisible('TenantInput')}" />
+            <h:panelGroup layout="grid" rendered="#{roleMBean.isSecureItemVisible('TenantInput')}">
+                <p:selectOneMenu id="role-tenant" value="#{roleMBean.roleDetail.tenant}" converter="listConverter"
+                                 required="true" requiredMessage="#{msg.error_role_empty_tenant}"
+                                 disabled="#{!roleMBean.isSecureItemEditable('TenantInput')}">
+                    <f:selectItem itemLabel="#{msg.data_please_select}" itemValue="" />
+                    <f:selectItems value="#{roleMBean.tenants}" var="tenant" itemLabel="#{tenant.tenantName}" itemValue="#{tenant}" />
+                </p:selectOneMenu>
+                <p:message for="role-tenant" />
+            </h:panelGroup>
+            
+            <p:outputLabel value="" rendered="#{menuNavMBean.userSession.firstRole.system}" />
+            <h:panelGroup layout="grid" rendered="#{menuNavMBean.userSession.firstRole.system}">
+                <p:selectBooleanCheckbox id="role-system" value="#{roleMBean.roleDetail.system}" />
+                <p:spacer />
+                <p:outputLabel value="#{msg.role_dtl_is_system}" for="role-system" />
+            </h:panelGroup>
+        </p:panelGrid>
+
+        <p:panelGrid class="ui-g-12 no-padding no-border" columns="2" layout="grid" style="margin-top: 20px;" 
+                     styleClass="ui-panelgrid-blank form-group" columnClasses="ui-grid-col-6,ui-grid-col-6"
+                     rendered="#{roleMBean.isSecureItemVisible('MenuEdit') and !roleMBean.newRole}">
+
+            <h:panelGroup>
+                <p:fieldset id="menu" legend="#{msg.role_dtl_menu}">
+                    <p:scrollPanel style="height: 320px;">
+
+                        <p:tree value="#{roleMBean.menus}" var="menu" style="width: 98%;" class="no-border"
+                                selectionMode="checkbox" selection="#{roleMBean.selectedMenus}">
+                            <p:treeNode>
+                                <p:commandLink value="#{menu.taskName}" class="tree-link" style="width: 98%;"
+                                               update="@form:nav-field" process="@form:nav-field" 
+                                               actionListener="#{roleMBean.showNavigationFields(menu)}" />
+                            </p:treeNode>
+                        </p:tree>
+
+                    </p:scrollPanel>
+                </p:fieldset>
+                    
+                <p class="field-note">#{msg.role_dtl_menu_note}</p>
+            </h:panelGroup>
+            
+            <h:panelGroup>
+                <p:fieldset id="nav-field" legend="#{msg.role_dtl_navfield}">
+                    <p:scrollPanel style="height: 320px;">
+
+                        <p:dataTable var="navField" value="#{roleMBean.selectedNavFields}" class="no-border"
+                                     editable="#{roleMBean.isSecureItemEditable('NavigationFieldEdit') ? 'true' : 'false'}" editMode="cell"
+                                     emptyMessage="#{msg.datatable_empty_message}">
+
+                            <p:column headerText="#{msg.role_dtl_navfield_secure_item}" style="width: 50%;">
+                                <p:outputLabel value="#{viewBean.addWhiteSpaceBetweenCapitalLetters(navField.task.taskName)}" />
+                            </p:column>
+
+                            <p:column headerText="#{msg.role_dtl_navfield_type}" style="width: 25%;">
+                                <p:outputLabel value="#{viewBean.toFirstUppercase(navField.task.taskType)}" />
+                            </p:column>
+
+                            <p:column headerText="#{msg.role_dtl_navfield_access_rights}" style="width: 25%;">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <p:outputLabel value="#{viewBean.toFirstUppercase(navField.accessRight)}" />
+                                    </f:facet>
+
+                                    <f:facet name="input">
+                                        <p:selectOneMenu value="#{navField.accessRight}" converter="listConverter" style="width: 100%">
+                                            <f:selectItems value="#{roleMBean.accessRights}" />
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                        </p:dataTable>
+
+                    </p:scrollPanel>
+                </p:fieldset>
+                    
+                <p class="field-note">#{msg.role_dtl_navfield_note}</p>
+            </h:panelGroup>
+
+        </p:panelGrid>
+        
+        <p:panel class="ui-g-12 control-button no-border no-padding">
+            <p:commandButton type="button" value="#{msg.btn_cancel}" icon="fa fa-times" styleClass="secondary">
+                <p:ajax event="click" listener="#{roleMBean.hideDetail()}" process="@this" update=":role-content" />
+            </p:commandButton>
+            <p:spacer width="10"/>
+
+            <p:commandButton value="#{msg.btn_save_next}" icon="fa fa-save" 
+                             disabled="#{roleMBean.isSecureItemReadOnly('SaveButton')}"
+                             rendered="#{roleMBean.newRole and roleMBean.isSecureItemVisible('SaveButton')}">
+                <p:ajax event="click" listener="#{roleMBean.showMenuAndNavigationFields()}" process="@form" update="@form:basic-data :role-content:detail" />
+            </p:commandButton>
+
+            <p:commandButton value="#{roleMBean.duplicate ? msg.btn_update : msg.btn_save}" icon="fa fa-save" 
+                             disabled="#{roleMBean.isSecureItemReadOnly('SaveButton')}"
+                             rendered="#{!roleMBean.newRole and roleMBean.isSecureItemVisible('SaveButton')}">
+                <p:confirm message="#{msg.role_dtl_save_confirm_message}" />
+                <p:ajax event="click" listener="#{roleMBean.saveDetail()}" process="@form" update="@form:basic-data" />
+            </p:commandButton>
+        </p:panel>
+    </h:form>
+
+</ui:composition>

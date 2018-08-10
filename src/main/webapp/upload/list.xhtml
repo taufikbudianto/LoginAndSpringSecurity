@@ -1,0 +1,62 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+    <style tyle="text/css">
+        .animated .ui-progressbar-value { 
+            background-image: url("/showcase/javax.faces.resource/demo/images/pbar-ani.gif.xhtml"); 
+        }
+    </style>
+
+    <script type="text/javascript">
+        function start() {
+            PF('startButton1').disable();
+
+            window['progress'] = setInterval(function () {
+                var pbClient = PF('pbClient'),
+                        oldValue = pbClient.getValue(),
+                        newValue = oldValue + 10;
+
+                pbClient.setValue(pbClient.getValue() + 10);
+
+                if (newValue === 100) {
+                    clearInterval(window['progress']);
+                }
+
+
+            }, 1000);
+        }
+
+        function cancel() {
+            clearInterval(window['progress']);
+            PF('pbClient').setValue(0);
+            PF('startButton1').enable();
+        }
+    </script>
+    <ui:define name="content">
+        <h:form prependId="false">
+            <div class="ui-g ui-fluid">
+                <div class="ui-g-12 ui-g-12 ui-lg-7">
+                    <p:chart type="bar" model="#{fileUploadMbean.barModel}" style="height:300px"/>
+                </div>
+                <div class="ui-g-12 ui-lg-5">
+                    <p:panel header="Upload File" toggleable="true" closable="true" class="card">
+                        <h:form enctype="multipart/form-data">
+                            <p:growl id="messages" showDetail="true" />
+                            <p:fileUpload value="#{fileUploadMbean.attachmentFile}" 
+                                          disabled="false"
+                                          dragDropSupport="false" invalidSizeMessage="Maximal File 5 MB"
+                                          fileUploadListener="#{fileUploadMbean.attachment}"
+                                          auto="true" sizeLimit="5242880"/>
+                            <p:outputLabel/>
+                        </h:form>
+                    </p:panel>
+                </div>
+            </div>
+
+
+        </h:form>
+    </ui:define>
+</ui:composition>

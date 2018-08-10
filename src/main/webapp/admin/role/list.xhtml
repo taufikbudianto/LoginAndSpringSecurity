@@ -1,0 +1,125 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12 ui-g-nopad">
+                <div class="ui-g-12 card">
+                
+                    <h:form id="role-content">
+                        
+                        <p:panel id="list" class="ui-g-12 no-border no-padding" rendered="#{!roleMBean.showDetail}">
+
+                            <p:panel class="ui-g-12 card-w-title no-padding no-border content-title">
+                                <h1>#{msg.role_title}</h1>
+                            </p:panel>
+
+                            <p:panelGrid class="ui-g-12 ui-lg-9 no-padding-table">
+                                <p:row>
+                                    <p:column>
+                                        <p:panel class="control-button" style="text-align: left;">
+                                            <p:commandButton value="#{msg.btn_create}" icon="fa fa-plus-circle" 
+                                                             disabled="#{roleMBean.isSecureItemReadOnly('CreateButton')}"
+                                                             rendered="#{roleMBean.isSecureItemVisible('CreateButton')}">
+                                                <p:ajax event="click" listener="#{roleMBean.loadDetail(null)}" update="@form" process="@this" />
+                                            </p:commandButton>
+
+                                            <p:commandButton value="#{msg.btn_enabled}" icon="fa fa-check-circle-o" 
+                                                             disabled="#{roleMBean.isSecureItemReadOnly('EnabledButton')}"
+                                                             rendered="#{roleMBean.isSecureItemVisible('EnabledButton')}">
+                                                <p:ajax event="click" listener="#{roleMBean.enabledOrDisabledSelectedRoles(true)}" update="@form:list" process="@form:role-datatable" />
+                                            </p:commandButton>
+
+                                            <p:commandButton value="#{msg.btn_disabled}" icon="fa fa-ban" 
+                                                             disabled="#{roleMBean.isSecureItemReadOnly('DisabledButton')}"
+                                                             rendered="#{roleMBean.isSecureItemVisible('DisabledButton')}">
+                                                <p:ajax event="click" listener="#{roleMBean.enabledOrDisabledSelectedRoles(false)}" update="@form:list" process="@form:role-datatable" />
+                                            </p:commandButton>
+
+                                            <p:commandButton value="#{msg.btn_duplicate}" icon="fa fa-files-o" 
+                                                             disabled="#{roleMBean.isSecureItemReadOnly('DuplicateButton')}"
+                                                             rendered="#{roleMBean.isSecureItemVisible('DuplicateButton')}">
+                                                <p:ajax event="click" listener="#{roleMBean.duplicateSelectedRole()}" update="@form" process="@form:role-datatable" />
+                                            </p:commandButton>
+                                        </p:panel>
+                                    </p:column>
+                                </p:row>
+                            </p:panelGrid>
+                            
+                            <p:panelGrid columns="1" layout="grid" class="ui-g-12 ui-lg-3 no-border no-padding-table" style="padding-bottom: 0; bottom: 0;">
+                                <p:panel class="md-inputfield panel-search no-padding" style="float: right;">
+                                    <h:form id="search">
+                                        <p:inputText value="#{roleMBean.roleFilter}"/>
+                                        <label>#{msg.role_filter_rolename}</label>
+                                        <i class="fa fa-search"></i>
+                                        <p:defaultCommand target="apply-btn"/>
+                                        <p:commandButton id="apply-btn" type="button" style="display: none;">
+                                            <p:ajax event="click" update=":role-content:list" process="@form"/>
+                                        </p:commandButton>
+                                    </h:form>
+                                </p:panel>
+                            </p:panelGrid>
+
+                            <p:dataTable id="role-datatable" var="role" value="#{roleMBean.rolesList}" reflow="true" rowKey="#{role.roleId}" class="ui-g-12"
+                                         lazy="true" selection="#{roleMBean.selectedRoles}" paginator="true" paginatorPosition="bottom" 
+                                         rows="#{viewBean.rowsPageDefault}" rowsPerPageTemplate="#{viewBean.rowsPerPageTemplate}" 
+                                         emptyMessage="#{msg.datatable_empty_message}">
+
+                                <f:facet name="header">#{msg.role_datatable_title}</f:facet>
+
+                                <p:column selectionMode="multiple" style="width: 5%; text-align: center;"/>
+
+                                <p:column headerText="#{msg.role_datatable_rolename}" style="width: 25%;" sortBy="#{role.roleName}">
+                                    <p:commandLink value="#{role.roleName}">
+                                        <p:ajax event="click" listener="#{roleMBean.loadDetail(role)}" update="@form @form:role-detail" process="@this" />
+                                    </p:commandLink>
+                                </p:column>
+
+                                <p:column headerText="#{msg.role_datatable_created}" style="width: 25%; text-align: center;">
+                                    <p:outputLabel value="#{role.createdDate}">
+                                        <f:convertDateTime pattern="#{viewBean.dateTimeFormatPattern}"/>
+                                    </p:outputLabel>
+                                </p:column>
+
+                                <p:column headerText="#{msg.role_datatable_lastmodified}" style="width: 25%; text-align: center;">
+                                    <p:outputLabel value="#{role.lastModifiedDate}">
+                                        <f:convertDateTime pattern="#{viewBean.dateTimeFormatPattern}"/>
+                                    </p:outputLabel>
+                                </p:column>
+
+                                <p:column headerText="#{msg.role_datatable_status}" style="width: 20%; text-align: center;" sortBy="#{role.enabled}">
+                                    <p:outputLabel value="#{role.enabled ? msg.data_active : msg.data_inactive}"/>
+                                </p:column>
+                            </p:dataTable>
+                            
+                        </p:panel>
+
+                        <p:panel id="detail" class="ui-g-12 no-border no-padding" rendered="#{roleMBean.showDetail}">
+                            <ui:include src="detail.xhtml" />
+                        </p:panel>
+
+                        <p:dialog id="saveNotification" widgetVar="saveNotification" header="#{msg.header_information}" showHeader="true" appendTo="@(body)"
+                                  showEffect="fade" hideEffect="fade" draggable="false" resizable="false" closable="false" modal="true" width="500">
+                            <h:form>
+                                <p:outputLabel value="#{msg.data_success_update}"/>
+                                <p:panel class="control-button">
+                                    <p:commandButton value="#{msg.btn_ok}">
+                                        <p:ajax event="click" listener="#{roleMBean.closeSaveInformationDialog()}" 
+                                                update=":role-content" process="@this"/>
+                                    </p:commandButton>
+                                </p:panel>
+                            </h:form>
+                        </p:dialog>
+                        
+                    </h:form>
+                    
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

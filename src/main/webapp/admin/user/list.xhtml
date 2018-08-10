@@ -1,0 +1,127 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="content">
+        <div class="ui-g">
+            <div class="ui-g-12 ui-g-nopad">
+                <div class="ui-g-12 card">
+                
+                    <h:form id="user-content">
+                        
+                        <p:panel id="list" class="ui-g-12 no-border no-padding" rendered="#{!userMBean.showDetail}">
+
+                            <p:panel class="ui-g-12 card-w-title no-padding no-border content-title">
+                                <h1>#{msg.user_title}</h1>
+                            </p:panel>
+
+                            <p:panelGrid class="ui-g-12 ui-lg-9 no-padding-table">
+                                <p:row>
+                                    <p:column>
+                                        <p:panel class="control-button" style="text-align: left;">
+                                            <p:commandButton value="#{msg.btn_create}" icon="fa fa-plus-circle" 
+                                                             disabled="#{userMBean.isSecureItemReadOnly('CreateButton')}"
+                                                             rendered="#{userMBean.isSecureItemVisible('CreateButton')}">
+                                                <p:ajax event="click" listener="#{userMBean.loadDetail(null)}" update="@form" process="@this" />
+                                            </p:commandButton>
+
+                                            <p:commandButton value="#{msg.btn_lock}" icon="fa fa-lock" 
+                                                             disabled="#{userMBean.isSecureItemReadOnly('LockButton')}"
+                                                             rendered="#{userMBean.isSecureItemVisible('LockButton')}">
+                                                <p:ajax event="click" listener="#{userMBean.lockOrUnlockSelectedUsers(false)}" update="@form:list" process="@form:user-datatable" />
+                                            </p:commandButton>
+
+                                            <p:commandButton value="#{msg.btn_unlock}" icon="fa fa-unlock" 
+                                                             disabled="#{userMBean.isSecureItemReadOnly('UnlockButton')}"
+                                                             rendered="#{userMBean.isSecureItemVisible('UnlockButton')}">
+                                                <p:ajax event="click" listener="#{userMBean.lockOrUnlockSelectedUsers(true)}" update="@form:list" process="@form:user-datatable" />
+                                            </p:commandButton>
+                                        </p:panel>
+                                    </p:column>
+                                </p:row>
+                            </p:panelGrid>
+                            
+                            <p:panelGrid columns="1" layout="grid" class="ui-g-12 ui-lg-3 no-border no-padding-table" style="padding-bottom: 0; bottom: 0;">
+                                <p:panel class="md-inputfield panel-search no-padding" style="float: right;">
+                                    <h:form id="search">
+                                        <p:inputText value="#{userMBean.userNameFilter}"/>
+                                        <label>#{msg.user_filter_username}</label>
+                                        <i class="fa fa-search"></i>
+                                        <p:defaultCommand target="apply-btn"/>
+                                        <p:commandButton id="apply-btn" type="button" style="display: none;">
+                                            <p:ajax event="click" update=":user-content:list" process="@form"/>
+                                        </p:commandButton>
+                                    </h:form>
+                                </p:panel>
+                            </p:panelGrid>
+
+                            <p:dataTable id="user-datatable" var="user" value="#{userMBean.usersList}" 
+                                         reflow="true" rowKey="#{user.userId}" class="ui-g-12"
+                                         lazy="true" selection="#{userMBean.selectedUsers}" 
+                                         paginator="true" paginatorPosition="bottom" 
+                                         rows="#{viewBean.rowsPageDefault}" rowsPerPageTemplate="#{viewBean.rowsPerPageTemplate}" 
+                                         emptyMessage="#{msg.datatable_empty_message}">
+
+                                <f:facet name="header">#{msg.user_datatable_title}</f:facet>
+
+                                <p:column selectionMode="multiple" style="width: 3%; text-align: center;"/>
+
+                                <p:column headerText="#{msg.user_datatable_username}" style="width: 20%;" sortBy="#{user.login}">
+                                    <p:commandLink value="#{user.login}">
+                                        <p:ajax event="click" listener="#{userMBean.loadDetail(user)}" update="@form @form:user-detail" process="@this" />
+                                    </p:commandLink>
+                                </p:column>
+
+                                <p:column headerText="#{msg.user_datatable_created}" style="width: 15%;">
+                                    <p:outputLabel value="#{user.createdDate}">
+                                        <f:convertDateTime pattern="#{viewBean.dateTimeFormatPattern}"/>
+                                    </p:outputLabel>
+                                </p:column>
+
+                                <p:column headerText="#{msg.user_datatable_last_login}" style="width: 15%;">
+                                    <p:outputLabel value="#{user.lastLogin}">
+                                        <f:convertDateTime pattern="#{viewBean.dateTimeFormatPattern}"/>
+                                    </p:outputLabel>
+                                </p:column>
+
+                                <p:column headerText="#{msg.user_datatable_lastmodified}" style="width: 15%;">
+                                    <p:outputLabel value="#{user.lastModifiedDate}">
+                                        <f:convertDateTime pattern="#{viewBean.dateTimeFormatPattern}"/>
+                                    </p:outputLabel>
+                                </p:column>
+
+                                <p:column headerText="#{msg.user_datatable_status}" style="width: 9%; text-align: center;" sortBy="#{user.enabled}">
+                                    <p:outputLabel value="#{user.enabled ? msg.data_active : msg.data_locked}" />
+                                </p:column>
+                            </p:dataTable>
+                            
+                        </p:panel>
+
+                        <p:panel id="detail" class="ui-g-12 no-border no-padding" rendered="#{userMBean.showDetail}">
+                            <ui:include src="detail.xhtml" />
+                        </p:panel>
+
+                        <p:dialog id="saveNotification" widgetVar="saveNotification" appendTo="@(body)" showHeader="true" header="Informasi" 
+                                  showEffect="fade" hideEffect="fade" draggable="false" resizable="false" closable="false" modal="true" width="500">
+                            <h:form>
+                                <p:outputLabel value="#{msg.data_success_update}"/>
+                                <p:panel class="control-button">
+                                    <p:commandButton value="#{msg.btn_ok}">
+                                        <p:ajax event="click" listener="#{userMBean.closeSaveInformationDialog()}" 
+                                                update=":user-content" process="@this"/>
+                                    </p:commandButton>
+                                </p:panel>
+                            </h:form>
+                        </p:dialog>
+                        
+                    </h:form>
+                    
+                </div>
+            </div>
+        </div>
+    </ui:define>
+
+</ui:composition>

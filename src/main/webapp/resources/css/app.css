@@ -1,0 +1,62 @@
+.no-border,
+.no-border > .ui-widget-content,
+.no-border tr,
+.no-border td {
+    border: none !important;
+}
+.no-padding,
+.no-padding > .ui-widget-content,
+.no-padding-table > .ui-widget-content,
+.no-padding-table tr,
+.no-padding-table td {
+    padding: 0 !important;
+}
+
+.align-top {
+    vertical-align: top !important;
+}
+
+.panel-search,
+.panel-search > .ui-widget-content {
+    border: none !important;
+    padding: 0 !important;
+}
+.panel-search input {
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.control-button {
+    border: none !important;
+    width: 100%;
+    text-align: right;
+}
+.control-button .ui-widget-content {
+    padding: 5px !important;
+}
+.control-button input {
+    margin-left: 3px;
+    margin-right: 7px;
+}
+.control-button button {
+    margin-top: 7px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.content-title {
+    padding: 5px 10px 0 10px !important;
+}
+.content-title h1 {
+    font-weight: bold !important;
+    margin-bottom: 15px;
+}
+
+.field-note {
+    color: red; 
+    font-size: 0.9em; 
+    padding: 0; 
+    margin: 0;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}

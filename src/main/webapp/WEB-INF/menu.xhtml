@@ -1,0 +1,19 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:pu="http://primefaces.org/avalon">
+
+    <div class="layout-menu-container layout-menu-dark">
+        <div class="nano">
+            <div class="nano-content menu-scroll-content">
+                <h:form>
+                    <pu:menu widgetVar="me" model="#{menuNavMBean.menuModel}" />
+                </h:form>
+            </div>
+        </div>
+    </div>
+</ui:composition>
